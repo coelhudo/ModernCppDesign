@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <typeinfo>
+#include <type_traits>
 
 struct NullType {};
 
@@ -40,13 +41,27 @@ template<class T> struct IndexOf<NullType, T>
    enum { value = -1 };
 };
 
+template<class Tail, class Type> struct IndexOf<TypeList<Type,Tail>, Type>
+{
+   enum { value = 0 };
+};
+
+template<class Head, class Tail, class Type> struct IndexOf<TypeList<Head,Tail>, Type>
+{
+private:
+   enum { temp = IndexOf<Tail, Type>::value };
+public:
+   enum { value = ((temp == -1) ? -1 : temp + 1) };
+};
+
 int main()
 {
    typedef TypeList<unsigned long, TypeList<std::string,NullType> > TypeListT;
    std::cout << Length<TypeListT>::value << "\n";
    std::cout << typeid(typename TypeAt<TypeListT,0>::Result).name() << "\n";
    std::cout << typeid(typename TypeAt<TypeListT,1>::Result).name() << "\n";
-   std::cout << IndexOf<NullType, NullType>::value << "\n";
+   std::cout << IndexOf<NullType, int>::value << "\n";
+   std::cout << IndexOf<TypeListT, std::string>::value << "\n";
 
    return 0;
 }
