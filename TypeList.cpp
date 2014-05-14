@@ -54,14 +54,45 @@ public:
    enum { value = ((temp == -1) ? -1 : temp + 1) };
 };
 
-int main()
+template<class TList, class T> struct Append;
+template<> struct Append<NullType, NullType>
 {
-   typedef TypeList<unsigned long, TypeList<std::string,NullType> > TypeListT;
+   typedef NullType Result;
+};
+
+template<class T> struct Append<NullType, T>
+{
+   typedef TypeList<T, NullType> Result;
+};
+
+template<class TypeListT> 
+void PrintTypeListProperties()
+{
+   std::cout << "================== Print New Type ================== \n";
    std::cout << Length<TypeListT>::value << "\n";
    std::cout << typeid(typename TypeAt<TypeListT,0>::Result).name() << "\n";
-   std::cout << typeid(typename TypeAt<TypeListT,1>::Result).name() << "\n";
    std::cout << IndexOf<NullType, int>::value << "\n";
    std::cout << IndexOf<TypeListT, std::string>::value << "\n";
+   std::cout << "================== New Type Printed ==================  \n";
+};
+
+template<class NullTypeCandidade> struct IsNullType
+{
+   enum { value = false };
+};
+
+template<> struct IsNullType<NullType>
+{
+   enum { value = true };
+};
+
+int main()
+{
+   typedef TypeList<unsigned long, TypeList<std::string,NullType> > DummyTypeList;
+   PrintTypeListProperties<DummyTypeList>();
+   std::cout << "Is Nulltype: " << IsNullType<Append<NullType, NullType>::Result>::value << "\n";
+   std::cout << "Is Nulltype: " << IsNullType<Append<NullType, int>::Result>::value << "\n";
+   PrintTypeListProperties<Append<NullType, int>::Result>();
 
    return 0;
 }
