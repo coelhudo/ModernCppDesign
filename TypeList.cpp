@@ -65,6 +65,16 @@ template<class T> struct Append<NullType, T>
    typedef TypeList<T, NullType> Result;
 };
 
+template<class Head, class Tail> struct Append<NullType, TypeList<Head, Tail>>
+{
+   typedef TypeList<Head, Tail> Result;
+};
+
+template<class Head, class Tail, class T> struct Append<TypeList<Head,Tail>, T>
+{
+   typedef TypeList<Head, typename Append<Tail,T>::Result> Result;
+};
+
 template<class TypeListT> 
 void PrintTypeListProperties()
 {
@@ -93,6 +103,9 @@ int main()
    std::cout << "Is Nulltype: " << IsNullType<Append<NullType, NullType>::Result>::value << "\n";
    std::cout << "Is Nulltype: " << IsNullType<Append<NullType, int>::Result>::value << "\n";
    PrintTypeListProperties<Append<NullType, int>::Result>();
+   PrintTypeListProperties<Append<NullType, DummyTypeList>::Result>();
+   PrintTypeListProperties<Append<DummyTypeList,char>::Result>();
+   std::cout << typeid(typename TypeAt<Append<DummyTypeList,char>::Result,2>::Result).name() << "\n";
 
    return 0;
 }
