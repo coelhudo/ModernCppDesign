@@ -1,9 +1,6 @@
 #include <string>
 #include <iostream>
 #include <typeinfo>
-#include <type_traits>
-
-struct NullType {};
 
 template<class T , class U>
 struct TypeList
@@ -11,6 +8,21 @@ struct TypeList
    typedef T Head;
    typedef U Tail;
 };
+
+struct NullType {};
+
+template<class NullTypeCandidade> struct IsNullType
+{
+   enum { value = false };
+};
+
+template<> struct IsNullType<NullType>
+{
+   enum { value = true };
+};
+
+
+//-------------------- Length --------------------
 
 template<class TList> struct Length;
 template<> struct Length<NullType>
@@ -24,6 +36,8 @@ struct Length< TypeList<T,U> >
    enum { value = 1 + Length<U>::value };
 };
 
+//-------------------- Type At --------------------
+
 template<class TList, unsigned int index> struct TypeAt;
 template<class T, class U> struct TypeAt<TypeList<T,U>, 0>
 {
@@ -34,6 +48,8 @@ template<class T, class U, unsigned int index> struct TypeAt<TypeList<T,U>,index
 {
    typedef typename TypeAt<U,index-1>::Result Result;
 };
+
+//-------------------- IndexOf --------------------
 
 template<class TList, class T> struct IndexOf;
 template<class T> struct IndexOf<NullType, T>
@@ -54,6 +70,7 @@ public:
    enum { value = ((temp == -1) ? -1 : temp + 1) };
 };
 
+//-------------------- Append --------------------
 template<class TList, class T> struct Append;
 template<> struct Append<NullType, NullType>
 {
@@ -75,11 +92,18 @@ template<class Head, class Tail, class T> struct Append<TypeList<Head,Tail>, T>
    typedef TypeList<Head, typename Append<Tail,T>::Result> Result;
 };
 
+//-------------------- Erase Type --------------------
+
 template<class TList, class T> struct EraseType;
 
-template<class TList> struct EraseType<TList, NullType>
+template<class T> struct EraseType<NullType, T>
 {
-   typedef TList Result;
+   typedef NullType Result;
+};
+
+template<class Head, class Tail> struct EraseType<TypeList<Head,Tail>, NullType>
+{
+   typedef TypeList<Head,Tail> Result;
 };
 
 template<class Head, class Tail> struct EraseType<TypeList<Head,Tail>, Head>
@@ -92,6 +116,8 @@ template<class Head, class Tail, class T> struct EraseType<TypeList<Head,Tail>, 
    typedef TypeList<Head, typename EraseType<Tail, T>::Result> Result;
 };
 
+//-------------------- Print --------------------
+
 template<class TypeListT> 
 void PrintTypeListProperties()
 {
@@ -101,16 +127,6 @@ void PrintTypeListProperties()
    std::cout << IndexOf<NullType, int>::value << "\n";
    std::cout << IndexOf<TypeListT, std::string>::value << "\n";
    std::cout << "================== New Type Printed ==================  \n";
-};
-
-template<class NullTypeCandidade> struct IsNullType
-{
-   enum { value = false };
-};
-
-template<> struct IsNullType<NullType>
-{
-   enum { value = true };
 };
 
 int main()
@@ -123,7 +139,9 @@ int main()
    PrintTypeListProperties<Append<NullType, DummyTypeList>::Result>();
    PrintTypeListProperties<Append<DummyTypeList,char>::Result>();
    std::cout << typeid(typename TypeAt<Append<DummyTypeList,char>::Result,2>::Result).name() << "\n";
-   //PrintTypeListProperties<typename EraseType<DummyTypeList,NullType>::Result>();
+   PrintTypeListProperties<typename EraseType<DummyTypeList,NullType>::Result>();
+   std::cout << "Is Nulltype: " << IsNullType<EraseType<NullType, int>::Result>::value << "\n";
+   std::cout << "Is Nulltype: " << IsNullType<EraseType<NullType, NullType>::Result>::value << "\n";
    PrintTypeListProperties<typename EraseType<DummyTypeList,unsigned long>::Result>();
 
    return 0;
