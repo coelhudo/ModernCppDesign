@@ -101,14 +101,9 @@ template<class T> struct EraseType<NullType, T>
    typedef NullType Result;
 };
 
-template<class Head, class Tail> struct EraseType<TypeList<Head,Tail>, NullType>
-{
-   typedef TypeList<Head,Tail> Result;
-};
-
 template<class Head, class Tail> struct EraseType<TypeList<Head,Tail>, Head>
 {
-   typedef TypeList<typename Tail::Head, typename Tail::Tail> Result;
+   typedef Tail Result;
 };
 
 template<class Head, class Tail, class T> struct EraseType<TypeList<Head,Tail>, T>
