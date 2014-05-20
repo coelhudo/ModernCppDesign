@@ -75,6 +75,23 @@ template<class Head, class Tail, class T> struct Append<TypeList<Head,Tail>, T>
    typedef TypeList<Head, typename Append<Tail,T>::Result> Result;
 };
 
+template<class TList, class T> struct EraseType;
+
+template<class TList> struct EraseType<TList, NullType>
+{
+   typedef TList Result;
+};
+
+template<class Head, class Tail> struct EraseType<TypeList<Head,Tail>, Head>
+{
+   typedef TypeList<typename Tail::Head, typename Tail::Tail> Result;
+};
+
+template<class Head, class Tail, class T> struct EraseType<TypeList<Head,Tail>, T>
+{
+   typedef TypeList<Head, typename EraseType<Tail, T>::Result> Result;
+};
+
 template<class TypeListT> 
 void PrintTypeListProperties()
 {
@@ -106,6 +123,8 @@ int main()
    PrintTypeListProperties<Append<NullType, DummyTypeList>::Result>();
    PrintTypeListProperties<Append<DummyTypeList,char>::Result>();
    std::cout << typeid(typename TypeAt<Append<DummyTypeList,char>::Result,2>::Result).name() << "\n";
+   //PrintTypeListProperties<typename EraseType<DummyTypeList,NullType>::Result>();
+   PrintTypeListProperties<typename EraseType<DummyTypeList,unsigned long>::Result>();
 
    return 0;
 }
